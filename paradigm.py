@@ -1,6 +1,9 @@
-from psychopy import visual, core, monitors, gui
+from psychopy import visual, core, monitors, gui, prefs
 from psychopy.hardware import keyboard
 from psychopy.visual.circle import Circle
+from psychopy.sound import Sound
+
+prefs.hardware['audioLib'] = ['PTB']
 
 import os
 import time
@@ -226,6 +229,32 @@ def image_trial_with_timer(win, kb, image):
                 return trial_timer.getTime(), key.name
                 
     return 3, 'no key press'
+    
+def simple_sound_trial(win, kb, sound_value='C', sound_duration=1):
+    
+    win.callOnFlip(kb.clearEvents)
+    
+    play_sound = visual.TextStim(win, text = "Press space to play sound")
+        
+    trial_timer = core.Clock()
+    trial_timer.reset()
+    
+    sound = Sound(sound_value, sound_duration)
+    
+    while True:
+                
+        play_sound.draw()
+        win.flip()
+        
+        response_keys = kb.getKeys(keyList = ['q', 'space'], clear = True)
+        
+        for key in response_keys:
+            if key.name in ['q']:
+                core.quit()
+            elif key.name == 'space':
+                sound.play()
+                core.wait(sound_duration)
+                return trial_timer.getTime(), key.name
 
 # Main experiment function
 
@@ -269,6 +298,8 @@ def experiment():
     #grating.draw()
     #fixation.draw()
     #mywin.update()
+    
+    simple_sound_trial(mywin, kb)
     
     # Image stimuli
     
