@@ -10,6 +10,8 @@ import time
 
 import random
 
+import pandas as pd
+
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +24,8 @@ input_path = script_path + '/Input/'
 preloaded_images = []
 
 os.makedirs(results_path, exist_ok=True)
+
+results = []
 
 # GUI functions
 
@@ -259,6 +263,7 @@ def simple_sound_trial(win, kb, sound_value='C', sound_duration=1):
 # Main experiment function
 
 def experiment():
+    global results
     #create a window
     
     for monitor in monitors.getAllMonitors():
@@ -299,7 +304,14 @@ def experiment():
     #fixation.draw()
     #mywin.update()
     
-    simple_sound_trial(mywin, kb)
+    trial_id = 1
+    
+    time, key = simple_sound_trial(mywin, kb)
+    
+    # after each trial, append: trial_id, trial_type, time, key
+    trial_output = [trial_id, 'auditory_trial', time, key]
+    trial_id += 1
+    results.append(trial_output)
     
     # Image stimuli
     
@@ -323,12 +335,27 @@ def experiment():
         
         time, key = image_trial_with_timer(mywin, kb, image)
         
+        trial_output = [trial_id, 'visual_trial', time, key]
+        trial_id += 1
+        results.append(trial_output)
+        
         logging.info(f'{time},{key}')
         
         trial_counter += 1
     
-    return mywin, kb
+    return results
 
 if __name__ == "__main__":
-    mywin, kb = experiment()
-    #text_trial(mywin, kb)
+    try: # run experiment
+        results = experiment()
+    except Exception as E: # log error
+        logging.info(f'Error: {E}')
+    finally: # fallback - always save whatever data was collected until paradigm was terminated
+        df = pd.DataFrame(results)
+        df.columns = ['trial_number', 'trial_type', 'response_time', 'response_key']
+
+        logging.info(f'DataFrame: {df}')
+
+        df.to_csv(results_path + 'test_results.csv', index = False)
+    
+        logging.info('Results saved succesfully')
