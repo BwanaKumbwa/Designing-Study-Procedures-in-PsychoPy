@@ -27,10 +27,13 @@ os.makedirs(results_path, exist_ok=True)
 
 results = []
 
+participant_id = ''
+experiment_timestamp = ''
+
 # GUI functions
 
 def save_gui_data(gui_data: dict):
-    
+    global participant_id, experiment_timestamp
     #for key in gui_data:
     #    ...
     
@@ -356,6 +359,6 @@ if __name__ == "__main__":
 
         logging.info(f'DataFrame: {df}')
 
-        df.to_csv(results_path + 'test_results.csv', index = False)
+        df.to_csv(results_path + f'results_{participant_id}_{experiment_timestamp}.csv', index = False) # ZADANIE -> zmienić nazwę na 'results_...' gdzie ... zgadza się z plikiem wyjściowym gui_data
     
         logging.info('Results saved succesfully')
